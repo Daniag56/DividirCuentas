@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,7 +43,7 @@ fun TipCalculatorScreen(){
     var totalAmount by remember { mutableStateOf("") }
     val guestNumberState = remember { TextFieldState() }
     var checked by remember { mutableStateOf(false) }
-    var tipValue: Float = 0.0F
+    var tipValue by rememberSaveable { mutableFloatStateOf(0.0F) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -96,11 +97,22 @@ fun TipCalculatorScreen(){
                 enabled = checked,
                 onValueChange = {
                     tipValue = it
+
+                    when{
+
+                    }
                 },
                 steps = 3,
                 valueRange = 0f..4f
             )
             val isCalculateButtonEnable = guestNumberState.text.isNotBlank()  && totalAmount.toFloat() > 0
+            val  guestNumber = guestNumberState.text.toString().toIntOrNull()
+            val totalAmount = totalAmount.toString().toDoubleOrNull()
+
+            val isCalculateButtonEnabled = if (guestNumber != null && totalAmount != null)
+                guestNumber > 0 && totalAmount > 0.0
+                else
+                    false
             Button(
                 enabled = isCalculateButtonEnable,
                 modifier = Modifier.fillMaxWidth(),
@@ -108,6 +120,14 @@ fun TipCalculatorScreen(){
                 }
             ) {
                 Text("Calcular")
+                when(tipValue){
+                    1.0f -> {
+
+                    }
+                    2.0f -> {
+
+                    }
+                }
             }
                 val showCalculate = true
                 if (showCalculate){
