@@ -44,6 +44,7 @@ fun TipCalculatorScreen(){
     val guestNumberState = remember { TextFieldState() }
     var checked by remember { mutableStateOf(false) }
     var tipValue by rememberSaveable { mutableFloatStateOf(0.0F) }
+    var resultado by rememberSaveable {mutableStateOf("")}
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
