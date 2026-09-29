@@ -9,12 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,29 +28,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.dividircuentasv2.R
 import com.example.dividircuentasv2.ui.theme.DividirCuentasV2Theme
-
-
-@Composable
 @Preview
-fun TipCalculatorScreenPreview(){
+@Composable
+fun TipCalculatorScreenPreview() {
     DividirCuentasV2Theme {
         TipCalculatorScreen()
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TipCalculatorScreen(){
+fun TipCalculatorScreen() {
     var totalAmount by remember { mutableStateOf("") }
     val guestNumberState = remember { TextFieldState() }
     var checked by remember { mutableStateOf(false) }
-    var tipValue by rememberSaveable { mutableFloatStateOf(0.0F) }
-    var resultado by rememberSaveable {mutableStateOf("")}
-
+    var tipValue by rememberSaveable { mutableFloatStateOf(0f) }
+    var resultado by rememberSaveable { mutableStateOf("") }
     Scaffold(
         modifier = Modifier.fillMaxSize()
-    ) {
-        innerPadding ->
+    ) { innerPadding ->
         val columnModifier = Modifier
             .consumeWindowInsets(innerPadding)
             .padding(innerPadding)
@@ -58,7 +57,7 @@ fun TipCalculatorScreen(){
         ) {
             val textFieldModifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 8.dp)
+                .padding(8.dp)
             val customQuantityKeyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Decimal
             )
@@ -66,10 +65,9 @@ fun TipCalculatorScreen(){
                 modifier = textFieldModifier,
                 value = totalAmount,
                 keyboardOptions = customQuantityKeyboardOptions,
-                onValueChange = {
-                    newText ->
+                onValueChange = { newText ->
                     totalAmount = newText
-                },
+                }
             )
             val customGuestKeyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
@@ -80,60 +78,72 @@ fun TipCalculatorScreen(){
                 keyboardOptions = customGuestKeyboardOptions
             )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal =  8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Text(stringResource(R.string.tipLable))
                 Switch(
                     checked = checked,
                     onCheckedChange = {
                         checked = it
-                        if (!checked) tipValue = 0.0f
+                        if (!checked) {
+                            tipValue = 0f
+                        }
                     }
                 )
             }
             Slider(
                 value = tipValue,
-                enabled = checked,
                 onValueChange = {
                     tipValue = it
-
-                    when{
-
-                    }
                 },
-                steps = 3,
-                valueRange = 0f..4f
+                enabled = checked,
+                valueRange = 0f..5f,
+                steps = 3
             )
-            val isCalculateButtonEnable = guestNumberState.text.isNotBlank()  && totalAmount.toFloat() > 0
-            val  guestNumber = guestNumberState.text.toString().toIntOrNull()
-            val totalAmount = totalAmount.toString().toDoubleOrNull()
-
-            val isCalculateButtonEnabled = if (guestNumber != null && totalAmount != null)
-                guestNumber > 0 && totalAmount > 0.0
-                else
-                    false
+            Text(
+                text = "Propina: ${(tipValue.toInt() * 5)}%"
+            )
+            val total = totalAmount.toDoubleOrNull()
+            val isCalculateButtonEnable =
+                guestNumberState.text.isNotBlank() &&
+                        total != null &&
+                        total > 0
             Button(
                 enabled = isCalculateButtonEnable,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
+                    val guestNumber =
+                        guestNumberState.text.toString().toIntOrNull()
+                    val total =
+                        totalAmount.toDoubleOrNull()
+                    if (guestNumber != null &&
+                        total != null && guestNumber > 0
+                    ) {
+                        val porcentaje =
+                            if (checked) tipValue.toInt() * 5
+                            else 0
+                        val propina = total * (porcentaje / 100.0)
+                        val totalConPropina = total + propina
+                        val porPersona = totalConPropina / guestNumber
+                        resultado =
+                            "Total: ${"%.2f".format(totalConPropina)} €\n" +
+                                    "Por persona: ${"%.2f".format(porPersona)} €"
+                    }
                 }
             ) {
                 Text("Calcular")
-                when(tipValue){
-                    1.0f -> {
-
-                    }
-                    2.0f -> {
-
-                    }
-                }
             }
-                val showCalculate = true
-                if (showCalculate){
+            if (resultado.isNotBlank()) {
+                Text(
+                    text = resultado,
+                    modifier = Modifier
 
-                }
+                )
+            }
         }
     }
 }
